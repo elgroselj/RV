@@ -94,30 +94,30 @@ def harris_response(im,SIG=1,kernel_size=6,alpha=0.06,tresh=0.95):
     R = R/np.amax(R)
           
 
-    def points_nonmax_tresh(hp,tresh=tresh,box_size=2):
-        def nonmaxima_suppression_box(A,box_size=2):
+    # def points_nonmax_tresh(hp,tresh=tresh,box_size=2):
+    #     def nonmaxima_suppression_box(A,box_size=2):
             
-            def loc_max_box(A,y,x,box_size=1):#9,25
-                if box_size == 1:
-                    return (A[y,x] >= max(A[y+1,x-1],A[y+1,x+1],A[y+1,x],A[y,x+1]) and A[y,x] > max(A[y,x-1],A[y-1,x-1],A[y-1,x],A[y-1,x+1]))
-                elif box_size == 2:
-                    return (A[y,x] > max(A[y-2,x-2], A[y-2,x-1], A[y-2,x], A[y-2,x+1], A[y-2,x+2],
-                                        A[y-1,x-2], A[y-1,x-1], A[y-1,x], A[y-1,x+1], A[y-1,x+2],
-                                        A[y,x-2],   A[y,x-1]) and
-                            A[y,x] >= max(A[y,x+1], A[y,x+2],
-                                        A[y+1,x-2], A[y+1,x-1], A[y+1,x], A[y+1,x+1], A[y+1,x+2],
-                                        A[y+2,x-2], A[y+2,x-1], A[y+2,x], A[y+2,x+1], A[y+2,x+2]))
+    #         def loc_max_box(A,y,x,box_size=1):#9,25
+    #             if box_size == 1:
+    #                 return (A[y,x] >= max(A[y+1,x-1],A[y+1,x+1],A[y+1,x],A[y,x+1]) and A[y,x] > max(A[y,x-1],A[y-1,x-1],A[y-1,x],A[y-1,x+1]))
+    #             elif box_size == 2:
+    #                 return (A[y,x] > max(A[y-2,x-2], A[y-2,x-1], A[y-2,x], A[y-2,x+1], A[y-2,x+2],
+    #                                     A[y-1,x-2], A[y-1,x-1], A[y-1,x], A[y-1,x+1], A[y-1,x+2],
+    #                                     A[y,x-2],   A[y,x-1]) and
+    #                         A[y,x] >= max(A[y,x+1], A[y,x+2],
+    #                                     A[y+1,x-2], A[y+1,x-1], A[y+1,x], A[y+1,x+1], A[y+1,x+2],
+    #                                     A[y+2,x-2], A[y+2,x-1], A[y+2,x], A[y+2,x+1], A[y+2,x+2]))
                     
-            A_ = np.copy(A)
-            for x in range(box_size,len(A[0])-box_size):
-                for y in range(box_size,len(A)-box_size):
-                    if not loc_max_box(A_,y,x,box_size):
-                        A_[y,x] = 0
-            return(A_)
+    #         A_ = np.copy(A)
+    #         for x in range(box_size,len(A[0])-box_size):
+    #             for y in range(box_size,len(A)-box_size):
+    #                 if not loc_max_box(A_,y,x,box_size):
+    #                     A_[y,x] = 0
+    #         return(A_)
         
-        hp_ = nonmaxima_suppression_box(hp,box_size)
-        hp_ = np.where(hp_>tresh,1,0)
-        return(hp_)
+    #     hp_ = nonmaxima_suppression_box(hp,box_size)
+    #     hp_ = np.where(hp_>tresh,1,0)
+    #     return(hp_)
     
     
     # R_ = points_nonmax_tresh(R,tresh=tresh)

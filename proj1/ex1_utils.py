@@ -24,7 +24,7 @@ def gausssmooth(img, sigma):
     G = G / np.sum(G)
     return cv2.sepFilter2D(img, -1, G, G)
     
-def show_flow(U, V, ax, type='field', set_aspect=False):
+def show_flow(U, V, ax, type='field', set_aspect=False, scale=1/0.01):
     if type == 'field':
         scaling = 0.1
         u = cv2.resize(gausssmooth(U, 1.5), (0, 0), fx=scaling, fy=scaling)
@@ -34,7 +34,7 @@ def show_flow(U, V, ax, type='field', set_aspect=False):
         y_ = -(np.array(list(range(1, u.shape[0] + 1))) - 0.5) / scaling
         x, y = np.meshgrid(x_, y_)
         
-        ax.quiver(x, y, -u * 5, v * 5)
+        ax.quiver(x, y, -u, v, scale=scale)
         if set_aspect:
             ax.set_aspect(1.)
     elif type == 'magnitude':
