@@ -34,7 +34,7 @@ def show_flow(U, V, ax, type='field', set_aspect=False, scale=1/0.01):
         y_ = -(np.array(list(range(1, u.shape[0] + 1))) - 0.5) / scaling
         x, y = np.meshgrid(x_, y_)
         
-        ax.quiver(x, y, -u, v, scale=scale)
+        ax.quiver(x, y, -u*5, v*5,scale=scale)
         if set_aspect:
             ax.set_aspect(1.)
     elif type == 'magnitude':
