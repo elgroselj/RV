@@ -1,3 +1,5 @@
 .venv
 proj1/__pycache__
 proj2/bolt1
+proj2/ms_material/__pycache__
+proj2/__pycache__
