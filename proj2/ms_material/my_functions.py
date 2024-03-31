@@ -5,7 +5,7 @@ import cv2 as cv
 
 import sys
 sys.path.append(".")
-from ms_material.ex2_utils import generate_responses_1, create_epanechnik_kernel, get_patch, extract_histogram, backproject_histogram
+from ex2_utils import generate_responses_1, create_epanechnik_kernel, get_patch, extract_histogram, backproject_histogram
 
 
 
@@ -30,65 +30,65 @@ from ms_material.ex2_utils import generate_responses_1, create_epanechnik_kernel
 #TARGET = je pa smiley al karkol kar smo vedeli, kje je v 1. framu, in nas zanima, kje je v 2. framu
 
 
-def mean_shift_epanechnik(pdf, x0, n_iter, width, height, plot=False):
-    # pdf           pdf matrix
-    # x0 = (a,b)    start position
-    # n_iter        number of iterations
-    # width, height region size
-    print("x0: ", x0)
-    x = x0
-    xs = [tuple(x)]
+# def mean_shift_epanechnik(pdf, x0, n_iter, width, height, plot=False):
+#     # pdf           pdf matrix
+#     # x0 = (a,b)    start position
+#     # n_iter        number of iterations
+#     # width, height region size
+#     print("x0: ", x0)
+#     x = x0
+#     xs = [tuple(x)]
     
     
         
-    if plot:
-        plt.imshow(pdf)
+#     if plot:
+#         plt.imshow(pdf)
 
-    assert width % 2 == 1
-    assert height % 2 == 1
+#     assert width % 2 == 1
+#     assert height % 2 == 1
     
     
-    #sestavim indeksni matriki
-    pol_height = int(height/2)
-    gradnik = np.arange(-pol_height,pol_height+1).reshape(height,1)
-    indexy = np.repeat(gradnik, width, axis=1)
+#     #sestavim indeksni matriki
+#     pol_height = int(height/2)
+#     gradnik = np.arange(-pol_height,pol_height+1).reshape(height,1)
+#     indexy = np.repeat(gradnik, width, axis=1)
     
-    pol_width = int(width/2)
-    gradnik = np.arange(-pol_width,pol_width+1).reshape(width,1)
-    indexx = np.repeat(gradnik, height, axis=1)
+#     pol_width = int(width/2)
+#     gradnik = np.arange(-pol_width,pol_width+1).reshape(width,1)
+#     indexx = np.repeat(gradnik, height, axis=1)
     
-    indexx = indexx.transpose()
+#     indexx = indexx.transpose()
     
     
-    for i in range(n_iter):
-        patch, _ = get_patch(pdf, x, (width,height))
-        # print(patch)
-        # plt.imshow(patch)
-        # plt.show()
-        xx = np.sum(np.multiply(patch, indexx))
-        yy = np.sum(np.multiply(patch, indexy))
-        norm = np.sum(patch)
-        # print(xx,yy,norm)
-        x_ = np.array([xx, yy]) / norm
-        # print(x_)
-        x_ = [int(round(x_[0])),int(round(x_[1]))]
-        # print(x_)
-        if x_ == [0,0]:
-            print("Break: close enough n_iter: ", i)
-            break
+#     for i in range(n_iter):
+#         patch, _ = get_patch(pdf, x, (width,height))
+#         # print(patch)
+#         # plt.imshow(patch)
+#         # plt.show()
+#         xx = np.sum(np.multiply(patch, indexx))
+#         yy = np.sum(np.multiply(patch, indexy))
+#         norm = np.sum(patch)
+#         # print(xx,yy,norm)
+#         x_ = np.array([xx, yy]) / norm
+#         # print(x_)
+#         x_ = [int(round(x_[0])),int(round(x_[1]))]
+#         # print(x_)
+#         if x_ == [0,0]:
+#             print("Break: close enough n_iter: ", i)
+#             break
         
-        x[0] += x_[0]
-        x[1] += x_[1]
-        xs.append(tuple(x))
+#         x[0] += x_[0]
+#         x[1] += x_[1]
+#         xs.append(tuple(x))
         
-        print(x)
+#         print(x)
     
-    if plot:
-        a = np.array(xs)
-        plt.scatter(a[:,0],a[:,1],s=5,c='r',marker="o")
-        xs = []
-    plt.show()      
-    return x
+#     if plot:
+#         a = np.array(xs)
+#         plt.scatter(a[:,0],a[:,1],s=5,c='r',marker="o")
+#         xs = []
+#     plt.show()      
+#     return x
         
 
 
