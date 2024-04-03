@@ -14,10 +14,31 @@ def generate_responses_1():
     responses[50, 70] = 0.5
     return gausssmooth(responses, 10)
 
+def generate_responses_2():
+    responses = np.zeros((100, 100), dtype=np.float32)
+    responses[:,25] = [1] * 100
+    X = gausssmooth(responses, 5)
+    return X / np.sum(X)
+
+def generate_responses_3():
+    xvalues = np.arange(100)/100*4+1
+    yvalues = np.arange(100)/100*4+1
+    x, y = np.meshgrid(xvalues, yvalues)
+    responses = np.sin(x**2 + y**2) / (x**2 + y**2)
+    return responses
+    
+    
+    # responses = np.arange(100, 100, dtype=np.float32)
+    # responses =  np.sin(responses)*0.3
+    # X = gausssmooth(responses, 5)
+    # return X / np.sum(X)
+
 def get_patch(img, center, sz):
     # crop coordinates
-    x0 = round(int(center[0] - sz[0] / 2))
-    y0 = round(int(center[1] - sz[1] / 2))
+    # x0 = round(int(center[0] - sz[0] / 2))
+    # y0 = round(int(center[1] - sz[1] / 2))
+    x0 = int(round(center[0] - sz[0] / 2))
+    y0 = int(round(center[1] - sz[1] / 2))
     x1 = int(round(x0 + sz[0]))
     y1 = int(round(y0 + sz[1]))
     # padding
@@ -54,9 +75,11 @@ def create_epanechnik_kernel(width, height, sigma):
     kernel[kernel<0] = 0
     return kernel
 
-def extract_histogram(patch, nbins, weights=None):
+def extract_histogram(patch, nbins, weights=None, mode="BGR"):
     # Note: input patch must be a BGR image (3 channel numpy array)
     # convert each pixel intensity to the one of nbins bins
+    if mode == "HSV":
+        patch = cv2.cvtColor(patch, cv2.COLOR_BGR2HSV)
     channel_bin_idxs = np.floor((patch.astype(np.float32) / float(255)) * float(nbins - 1))
     # calculate bin index of a 3D histogram
     bin_idxs = (channel_bin_idxs[:, :, 0] * nbins**2  + channel_bin_idxs[:, :, 1] * nbins + channel_bin_idxs[:, :, 2]).astype(np.int32)
@@ -70,6 +93,26 @@ def extract_histogram(patch, nbins, weights=None):
     histogram = np.zeros((nbins**3, 1), dtype=histogram_.dtype).flatten()
     histogram[:histogram_.size] = histogram_
     return histogram
+
+# def extract_background_histogram(patch, nbins, weights=None, mode="BGR"):
+#     # Note: input patch must be a BGR image (3 channel numpy array)
+#     # convert each pixel intensity to the one of nbins bins
+#     if mode == "HSV":
+#         patch = cv2.cvtColor(patch, cv2.COLOR_BGR2HSV)
+#     channel_bin_idxs = np.floor((patch.astype(np.float32) / float(255)) * float(nbins - 1))
+#     # calculate bin index of a 3D histogram
+#     bin_idxs = (channel_bin_idxs[:, :, 0] * nbins**2  + channel_bin_idxs[:, :, 1] * nbins + channel_bin_idxs[:, :, 2]).astype(np.int32)
+
+#     # count bin indices to create histogram (use per-pixel weights if given)
+#     if weights is not None:
+#         histogram_ = np.bincount(bin_idxs.flatten(), weights=weights.flatten())
+#     else:
+#         histogram_ = np.bincount(bin_idxs.flatten())
+#     # zero-pad histogram (needed since bincount function does not generate histogram with nbins**3 elements)
+#     histogram = np.zeros((nbins**3, 1), dtype=histogram_.dtype).flatten()
+#     histogram[:histogram_.size] = histogram_
+#     return histogram
+
 
 def backproject_histogram(patch, histogram, nbins):
     # Note: input patch must be a BGR image (3 channel numpy array)
