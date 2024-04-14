@@ -135,31 +135,31 @@ from run_ms_tracker import run_ms_tracker_fun
 # # print(df)
 # df.to_csv("params.csv")
 
-# df=pd.read_csv("params.csv")
-# print(df)
+df=pd.read_csv("params.csv")
+print(df)
 
-# param = "hist_mode"
+param = "hist_mode"
 
-# for sequence in df["sequence"].unique():
-#     df_ = df[df["sequence"] == sequence]
-#     plt.plot(df_[param],df_["n_failures"],'--o',label=sequence)
-#     plt.xlabel(param)
-#     plt.ylabel("n_failures")
-#     # plt.xscale("log")
-#     # plt.legend()
-# neki = df[["hist_mode","n_failures"]].groupby("hist_mode").mean().reset_index()
-# plt.scatter(neki["hist_mode"],neki["n_failures"],c="black")
-# plt.savefig(param+".png")
-# plt.show()
+for sequence in df["sequence"].unique():
+    df_ = df[df["sequence"] == sequence]
+    plt.plot(df_[param],df_["n_failures"],'--o',label=sequence)
+    plt.xlabel(param)
+    plt.ylabel("n_failures")
+    # plt.xscale("log")
+    # plt.legend()
+neki = df[["hist_mode","n_failures"]].groupby("hist_mode").mean().reset_index()
+plt.scatter(neki["hist_mode"],neki["n_failures"],c="black")
+plt.savefig(param+".png")
+plt.show()
 
 
 
 
 # for sequence in ['basketball', 'bicycle', 'fish1','sphere', 'surfing']:
     
-sequence = "basketball"
-d={"alpha":0}
-run_ms_tracker_fun(sequence,d,plot=True,video_delay=15,show_gt=True)
+# sequence = "basketball"
+# d={"alpha":0.1}
+# run_ms_tracker_fun(sequence,d,plot=True,video_delay=15,show_gt=True)
 
 # sequence = "bicycle"
 # run_ms_tracker_fun(sequence,{},plot=True)
