@@ -7,16 +7,16 @@ from sequence_utils import VOTSequence
 #from ms_tracker import MeanShiftTracker, MSParams
 from corr_tracker import CorrTracker, CorrParams
 
-def run(sequence="bolt1",parameters=CorrParams(),plot=True):
+def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15):
     # set the path to directory where you have the sequences
     dataset_path = '/home/lema/Documents/RV/proj2/' # TODO: set to the dataet path on your disk
-    sequence = 'bolt1'  # choose the sequence you want to test
+    sequence = sequence  # choose the sequence you want to test
 
     # visualization and setup parameters
     win_name = 'Tracking window'
     reinitialize = True
     show_gt = False
-    video_delay = 15
+    # video_delay = 15
     font = cv2.FONT_HERSHEY_PLAIN
 
     # create sequence object
@@ -39,7 +39,8 @@ def run(sequence="bolt1",parameters=CorrParams(),plot=True):
     time_all = 0
 
     # initialize visualization window
-    sequence.initialize_window(win_name)
+    if plot:
+        sequence.initialize_window(win_name)
     # tracking loop - goes over all frames in the video sequence
     frame_idx = 0
     while frame_idx < sequence.length():

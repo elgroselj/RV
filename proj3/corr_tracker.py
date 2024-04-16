@@ -1,9 +1,11 @@
 import numpy as np
-import cv2
 import sys
-sys.path.append(".")
-from proj3.toolkit_dir.pytracking_toolkit_lite.utils.tracker import Tracker
-from my import construct_H, localization_step, exponential_forgetting
+# sys.path.append("/home/lema/Documents/RV/proj3/toolkit/pytracking-toolkit-lite/")
+try:
+    from utils.tracker import Tracker
+except Exception:
+    from ex2_utils import Tracker
+from my import construct_Hfc, localization_step, exponential_forgetting
 
 
 class CorrTracker(Tracker):
@@ -19,8 +21,6 @@ class CorrTracker(Tracker):
         Z = np.zeros(shape[:2])
         Z[:cut.shape[0],:cut.shape[1]] = F[:shape[0],:shape[1]]
         return Z
-        
-        
 
     def initialize(self, image, region):
         
@@ -29,7 +29,7 @@ class CorrTracker(Tracker):
         # bom probala kr 2D window
         # self.window = max(region[2], region[3]) * self.parameters.enlarge_factor
         # self.window = (region[2], region[3]) * self.parameters.enlarge_factor
-        self.window = (region[2], region[3]) * self.parameters.enlarge_factor
+        self.window = (region[2]*self.parameters.enlarge_factor, region[3]*self.parameters.enlarge_factor) 
 
         left = max(region[0], 0)
         top = max(region[1], 0)
@@ -44,7 +44,7 @@ class CorrTracker(Tracker):
         
         F = CorrTracker.gray_clip(self.template,self.template.shape)
         
-        self.H = construct_H(F,sigma=self.parameters.sigma,
+        self.Hfc = construct_Hfc(F,sigma=self.parameters.sigma,
                              lmbd=self.parameters.lmbd)
         
 
@@ -69,14 +69,14 @@ class CorrTracker(Tracker):
         # to grayscale
         F = CorrTracker.gray_clip(cut,self.template.shape)
 
-        new_locF =localization_step(self.H,F)
+        new_locF = localization_step(self.Hfc,F)
         
         self.position = (left + new_locF[0], top + new_locF[1])
         # max_loc: zg levo krajisce templata v cut-u
         max_loc = (float(self.position[0]) - left - float(self.size[0]) / 2, float(self.position[1]) - top - float(self.size[1])/2)
         #####################################################3
 
-        assert self.position == (left + max_loc[0] + float(self.size[0]) / 2, top + max_loc[1] + float(self.size[1]) / 2)
+        # assert self.position == (left + max_loc[0] + float(self.size[0]) / 2, top + max_loc[1] + float(self.size[1]) / 2)
 
         #################### update ###############################
         
@@ -92,9 +92,9 @@ class CorrTracker(Tracker):
         
         F = CorrTracker.gray_clip(cut,self.template.shape)
         
-        Hcalc = construct_H(F,sigma=self.parameters.sigma,
+        Hfc_calc = construct_Hfc(F,sigma=self.parameters.sigma,
                              lmbd=self.parameters.lmbd)
-        self.H = exponential_forgetting(self.H,Hcalc,self.parameters.alpha)
+        self.Hfc = exponential_forgetting(self.Hfc,Hfc_calc,self.parameters.alpha)
         
         ##############################################################
         
@@ -106,7 +106,7 @@ class CorrParams():
         self.enlarge_factor = 1 # TODO lahko to dodas
         
         self.sigma = 0.2 # TODO finetune
-        self.lmbd = 0.5 # TODO finetune
+        self.lmbd = 1 # TODO finetune
         
         self.alpha = 0.05 # TODO finetune
 

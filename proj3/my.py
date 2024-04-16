@@ -3,66 +3,55 @@ import matplotlib.pyplot as plt
 
 from ex3_utils import create_gauss_peak, create_cosine_window
 
-def fur(M, mode = "basic"):
-    if mode == "basic":
-        Mf = np.fft.fft2(M)
-        return Mf
-    else:
-        Ml = np.log(M)
-        v = Ml - np.min(Ml)
-        Mln = np.divide(v, np.max(v))
-        Mlnf = np.fft.fft2(Mln)
-        return Mlnf
 
-def ifur(Mlnf, mode = "basic"):
-    Mln = np.fft.ifft2(Mlnf)
-    assert np.max(Mln.imag) < 1e-14
-    Mln = Mln.real
-    if mode == "basic":
-        return Mln
-    else:
-        Mn = np.exp(Mln) # TODO pomaga?
-        return Mn
+def fur(M): return np.fft.fft2(M)
+def ifur(M): return np.fft.ifft2(M)
 
-# init
-def construct_H(F, sigma=1, lmbd=1e-3):
+def construct_Hfc(F, sigma, lmbd):
     # F: grayscale image patch around object location
     # lmbd: kako pomembno je, da je H majhen (napram temu, da se dobro nafitta)
-    G = np.transpose(create_gauss_peak(target_size=F.shape, sigma=sigma))
+    G = create_gauss_peak(target_size=(F.shape[1],F.shape[0]), sigma=sigma)
     G = G[:F.shape[0],:F.shape[1]]
-    # Gf = np.fft.fft2(G)
     Gf = fur(G)
-    # Ff = np.fft.fft2(F)
-    Ff = fur(F)
-    Ffc = np.conjugate(Ff) # TODO ali meč tudi transponira
+    
+    coswin = create_cosine_window((F.shape[1],F.shape[0]))
+    Fw = np.multiply(F,coswin)
+    Ff = fur(Fw)
+    Ffc = np.conjugate(Ff)
     Hfc = np.divide(np.multiply(Gf,Ffc), (np.multiply(Ff,Ffc) + lmbd))
-    Hf = np.conjugate(Hfc)
-    # H = np.fft.ifft2(Hf)
-    H = ifur(Hf)
-    # plt.imshow(H)
-    # plt.show()
-    return H
+    return Hfc
 
-def localization_step(H, F):
+def localization_step(Hfc,F):
     # R correlation response
     coswin = create_cosine_window((F.shape[1],F.shape[0]))
     Fw = np.multiply(F,coswin)
-    # Hf = np.fft.fft2(H)
-    Hf = fur(H)
-    Hfc = np.conjugate(Hf)
-    # Ff = np.fft.fft2(Fw)
     Ff = fur(Fw)
-    Rf =np.multiply(Hfc,Ff)
-    # R = np.fft.ifft2(Rf)
+    
+    Rf = np.multiply(Hfc,Ff)
     R = ifur(Rf)
     detected_location = np.unravel_index(np.argmax(R), R.shape)
-    return detected_location
+    r,c = detected_location
+    
+    height = F.shape[0]
+    width = F.shape[1]
+    
+    if r > height/2:
+        r = r - height
+    if c > width/2:
+        c = c - width     
+    
+    old_location = (height/2, width/2)
+    r_old, c_old = old_location
+    
+    r_new = r_old + r
+    c_new = c_old + c
+    return (r_new, c_new)
 
-def exponential_forgetting(Hprev, Hcalc, alpha):
+def exponential_forgetting(Hfc_prev, Hfc_calc, alpha):
     # H: updated Hprev with new observation Hcalc
     # alpha: update speed: small alpha for conservative behaviour (0.02 ali 0.1)
-    H = (1-alpha)*Hprev + alpha*Hcalc
-    return H
+    Hfc = (1-alpha)*Hfc_prev + alpha*Hfc_calc
+    return Hfc
     
     
     
