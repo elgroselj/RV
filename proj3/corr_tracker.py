@@ -17,6 +17,7 @@ class CorrTracker(Tracker):
         return 'corr'
     
     def gray_clip(cut,shape):
+        shape = (shape[1],shape[0])
         F = (cut[:,:,0]+cut[:,:,1]+cut[:,:,2])/3 
         Z = np.zeros(shape[:2])
         Z[:cut.shape[0],:cut.shape[1]] = F[:shape[0],:shape[1]]
@@ -30,6 +31,7 @@ class CorrTracker(Tracker):
         # self.window = max(region[2], region[3]) * self.parameters.enlarge_factor
         # self.window = (region[2], region[3]) * self.parameters.enlarge_factor
         self.window = (region[2]*self.parameters.enlarge_factor, region[3]*self.parameters.enlarge_factor)
+        self.window_shape = (int(self.window[0]),int(self.window[1]))
 
         left = max(region[0], 0)
         top = max(region[1], 0)
@@ -40,9 +42,17 @@ class CorrTracker(Tracker):
         self.template = image[int(top):int(bottom), int(left):int(right)]
         self.position = (region[0] + region[2] / 2, region[1] + region[3] / 2)
         self.size = (region[2], region[3])
-
         
-        F = CorrTracker.gray_clip(self.template,self.template.shape)
+        
+        # krajisca preiskovane okolice (vecji bounding box)
+        left = max(round(self.position[0] - float(self.window[0]) / 2), 0)
+        top = max(round(self.position[1] - float(self.window[1]) / 2), 0)
+
+        right = min(round(self.position[0] + float(self.window[0]) / 2), image.shape[1] - 1)
+        bottom = min(round(self.position[1] + float(self.window[1]) / 2), image.shape[0] - 1)
+
+        cut = image[int(top):int(bottom), int(left):int(right)]
+        F = CorrTracker.gray_clip(cut,self.window_shape)
         
         self.Hfc = construct_Hfc(F,sigma=self.parameters.sigma,
                              lmbd=self.parameters.lmbd)
@@ -67,7 +77,7 @@ class CorrTracker(Tracker):
         
         ######################corr tracking################
         # to grayscale
-        F = CorrTracker.gray_clip(cut,self.template.shape)
+        F = CorrTracker.gray_clip(cut,self.window_shape)
 
         new_locF = localization_step(self.Hfc,F)
         
@@ -90,7 +100,7 @@ class CorrTracker(Tracker):
         # okolico izrezem iz slike
         cut = image[int(top):int(bottom), int(left):int(right)]
         
-        F = CorrTracker.gray_clip(cut,self.template.shape)
+        F = CorrTracker.gray_clip(cut,self.window_shape)
         
         Hfc_calc = construct_Hfc(F,sigma=self.parameters.sigma,
                              lmbd=self.parameters.lmbd)
@@ -103,7 +113,7 @@ class CorrTracker(Tracker):
 
 class CorrParams():
     def __init__(self):
-        self.enlarge_factor = 1
+        self.enlarge_factor = 1.5
         
         self.sigma = 3
         self.lmbd = 10

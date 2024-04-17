@@ -4,118 +4,118 @@
     {
       "sequence_name": "bicycle",
       "sequence_length": 271,
-      "overlap": 0.5488476690430152,
+      "overlap": 0.5767794385668494,
       "failures": 8,
-      "speed": 2476.866686951408
+      "speed": 1777.2077493396453
     },
     {
       "sequence_name": "bolt",
       "sequence_length": 350,
-      "overlap": 0.28937064343780594,
-      "failures": 10,
-      "speed": 2877.6975745929362
+      "overlap": 0.39190645613497277,
+      "failures": 19,
+      "speed": 1585.6600773038228
     },
     {
       "sequence_name": "car",
       "sequence_length": 374,
-      "overlap": 0.32642299843634826,
+      "overlap": 0.25582845407518684,
       "failures": 0,
-      "speed": 2353.0899563011058
+      "speed": 1645.4406292024175
     },
     {
       "sequence_name": "cup",
       "sequence_length": 303,
-      "overlap": 0.4115258237898176,
-      "failures": 6,
-      "speed": 1816.2773605258494
+      "overlap": 0.43750900159065154,
+      "failures": 0,
+      "speed": 1240.9770626072923
     },
     {
       "sequence_name": "david",
       "sequence_length": 770,
-      "overlap": 0.6262046936750869,
-      "failures": 2,
-      "speed": 918.405869659671
+      "overlap": 0.5567378928935951,
+      "failures": 1,
+      "speed": 466.7758203032042
     },
     {
       "sequence_name": "diving",
       "sequence_length": 231,
-      "overlap": 0.32508083691093953,
-      "failures": 2,
-      "speed": 2159.3556018090158
+      "overlap": 0.4066553896249443,
+      "failures": 3,
+      "speed": 1176.3890025139815
     },
     {
       "sequence_name": "face",
       "sequence_length": 415,
-      "overlap": 0.8326668573368378,
+      "overlap": 0.7679525413975435,
       "failures": 0,
-      "speed": 1051.6775600188575
+      "speed": 282.1918092134224
     },
     {
       "sequence_name": "gymnastics",
       "sequence_length": 207,
-      "overlap": 0.4630834124461294,
+      "overlap": 0.46821512470811105,
       "failures": 1,
-      "speed": 1633.0032039040195
+      "speed": 654.6911718539818
     },
     {
       "sequence_name": "hand",
       "sequence_length": 244,
-      "overlap": 0.33824561909498585,
-      "failures": 8,
-      "speed": 1362.7688841037702
+      "overlap": 0.3007791111613216,
+      "failures": 7,
+      "speed": 895.7038683584021
     },
     {
       "sequence_name": "iceskater",
       "sequence_length": 500,
-      "overlap": 0.4967836433254098,
-      "failures": 3,
-      "speed": 402.7151285029733
+      "overlap": 0.3608668226739189,
+      "failures": 4,
+      "speed": 273.3310838862812
     },
     {
       "sequence_name": "juice",
       "sequence_length": 404,
-      "overlap": 0.44846676770993554,
-      "failures": 17,
-      "speed": 2002.5182859420884
+      "overlap": 0.42776968013602606,
+      "failures": 6,
+      "speed": 904.9137579087081
     },
     {
       "sequence_name": "jump",
       "sequence_length": 228,
-      "overlap": 0.4673031679795834,
-      "failures": 1,
-      "speed": 1555.0863298539425
+      "overlap": 0.5837079731794066,
+      "failures": 2,
+      "speed": 874.1594956449376
     },
     {
       "sequence_name": "singer",
       "sequence_length": 351,
-      "overlap": 0.3413130969295079,
+      "overlap": 0.3598041853235882,
       "failures": 0,
-      "speed": 467.26413375160257
+      "speed": 176.86038710576724
     },
     {
       "sequence_name": "sunshade",
       "sequence_length": 172,
-      "overlap": 0.5045651897784312,
-      "failures": 9,
-      "speed": 2582.5720442652855
+      "overlap": 0.545975577307968,
+      "failures": 7,
+      "speed": 1313.2324788656676
     },
     {
       "sequence_name": "torus",
       "sequence_length": 264,
-      "overlap": 0.6126566378270604,
-      "failures": 1,
-      "speed": 2374.8337045533326
+      "overlap": 0.6410061773891493,
+      "failures": 2,
+      "speed": 821.0556909566902
     },
     {
       "sequence_name": "woman",
       "sequence_length": 597,
-      "overlap": 0.4808153077860007,
-      "failures": 10,
-      "speed": 1666.7204784977953
+      "overlap": 0.5186825022302423,
+      "failures": 11,
+      "speed": 801.0783760741971
     }
   ],
-  "average_overlap": 0.46958452284418095,
-  "total_failures": 78,
-  "average_speed": 1731.3033002021036,
+  "average_overlap": 0.47501102052459226,
+  "total_failures": 71,
+  "average_speed": 930.6042788211512,
   "total_frames": 5681
 }

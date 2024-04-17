@@ -37,7 +37,7 @@ def plot2(x, y1, y2, x_label, y1_label="n_failures", y2_label="avg_overlap"):
     fig, ax1 = plt.subplots()
 
     color = 'tab:red'
-    ax1.set_xlabel()
+    ax1.set_xlabel(x_label)
     # ax1.set_xscale("log")
     
     ax1.set_ylabel(y1_label, color=color)
@@ -103,9 +103,20 @@ def scatter3(x, y1, y2, z):
 # plot2(sigmas,Fs,Os, x_label="sigma")
 # # plot2(lmbds,Fs,Os, x_label="lambda")
 # # plot2(alphas,Fs,Os, x_label="alpha")
-params = CorrParams()
-params.enlarge_factor = 1.1
-run_tests(verbose=True, params=params)
+
+
+enfs = [1,1.1,1.5,2]
+# enfs = [1]
+Fs = []
+Os = []
+for enf in enfs:
+    params = CorrParams()
+    params.enlarge_factor = enf
+    F, O  = run_tests(verbose=True, params=params)
+    Fs.append(F)
+    Os.append(O)
+    
+plot2(enfs,Fs,Os, x_label="enlarge_factor")
 
 
         
