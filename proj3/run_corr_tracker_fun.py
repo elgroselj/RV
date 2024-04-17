@@ -1,15 +1,16 @@
 import time
 
 import cv2
+import numpy as np
 
 from sequence_utils import VOTSequence
 # from ncc_tracker_example import NCCTracker, NCCParams
 #from ms_tracker import MeanShiftTracker, MSParams
 from corr_tracker import CorrTracker, CorrParams
 
-def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15):
+def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15,verbose=True):
     # set the path to directory where you have the sequences
-    dataset_path = '/home/lema/Documents/RV/proj2/' # TODO: set to the dataet path on your disk
+    dataset_path = '/home/lema/Documents/RV/proj3/vot2013/' # TODO: set to the dataet path on your disk
     sequence = sequence  # choose the sequence you want to test
 
     # visualization and setup parameters
@@ -23,6 +24,9 @@ def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15):
     sequence = VOTSequence(dataset_path, sequence)
     init_frame = 0
     n_failures = 0
+    overlap = [0,0]
+    init_times = []
+    track_times = []
     # create parameters and tracker objects
     
     
@@ -50,17 +54,23 @@ def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15):
             # initialize tracker (at the beginning of the sequence or after tracking failure)
             t_ = time.time()
             tracker.initialize(img, sequence.get_annotation(frame_idx, type='rectangle'))
-            time_all += time.time() - t_
+            t_diff = time.time() - t_
+            init_times.append(t_diff)
+            time_all += t_diff
             predicted_bbox = sequence.get_annotation(frame_idx, type='rectangle')
         else:
             # track on current frame - predict bounding box
             t_ = time.time()
             predicted_bbox = tracker.track(img)
-            time_all += time.time() - t_
+            t_diff = time.time() - t_
+            track_times.append(t_diff)
+            time_all += t_diff
 
         # calculate overlap (needed to determine failure of a tracker)
         gt_bb = sequence.get_annotation(frame_idx, type='rectangle')
         o = sequence.overlap(predicted_bbox, gt_bb)
+        overlap[0]+=o
+        overlap[1]+=1
 
         # draw ground-truth and predicted bounding boxes, frame numbers and show image
         if plot:
@@ -79,6 +89,8 @@ def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15):
             frame_idx += 5
             init_frame = frame_idx
             n_failures += 1
-
-    print('Tracking speed: %.1f FPS' % (sequence.length() / time_all))
-    print('Tracker failed %d times' % n_failures)
+    if verbose:
+        print('Tracking speed: %.1f FPS' % (sequence.length() / time_all))
+        print('Tracker failed %d times' % n_failures)
+        print('Average overlap %d percent' % (overlap[0]/overlap[1]*100))
+    return((sequence.length() / time_all), n_failures, overlap[0]/overlap[1], init_times, track_times)

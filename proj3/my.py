@@ -45,7 +45,8 @@ def localization_step(Hfc,F):
     
     r_new = r_old + r
     c_new = c_old + c
-    return (r_new, c_new)
+    # return (r_new, c_new)
+    return (c_new, r_new)
 
 def exponential_forgetting(Hfc_prev, Hfc_calc, alpha):
     # H: updated Hprev with new observation Hcalc

@@ -29,7 +29,7 @@ class CorrTracker(Tracker):
         # bom probala kr 2D window
         # self.window = max(region[2], region[3]) * self.parameters.enlarge_factor
         # self.window = (region[2], region[3]) * self.parameters.enlarge_factor
-        self.window = (region[2]*self.parameters.enlarge_factor, region[3]*self.parameters.enlarge_factor) 
+        self.window = (region[2]*self.parameters.enlarge_factor, region[3]*self.parameters.enlarge_factor)
 
         left = max(region[0], 0)
         top = max(region[1], 0)
@@ -76,7 +76,7 @@ class CorrTracker(Tracker):
         max_loc = (float(self.position[0]) - left - float(self.size[0]) / 2, float(self.position[1]) - top - float(self.size[1])/2)
         #####################################################3
 
-        # assert self.position == (left + max_loc[0] + float(self.size[0]) / 2, top + max_loc[1] + float(self.size[1]) / 2)
+        assert self.position == (left + max_loc[0] + float(self.size[0]) / 2, top + max_loc[1] + float(self.size[1]) / 2)
 
         #################### update ###############################
         
@@ -103,10 +103,10 @@ class CorrTracker(Tracker):
 
 class CorrParams():
     def __init__(self):
-        self.enlarge_factor = 1 # TODO lahko to dodas
+        self.enlarge_factor = 1
         
-        self.sigma = 0.2 # TODO finetune
-        self.lmbd = 1 # TODO finetune
+        self.sigma = 3
+        self.lmbd = 10
         
-        self.alpha = 0.05 # TODO finetune
+        self.alpha = 0.05
 
