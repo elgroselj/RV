@@ -7,7 +7,7 @@ from ex3_utils import create_gauss_peak, create_cosine_window
 def fur(M): return np.fft.fft2(M)
 def ifur(M): return np.fft.ifft2(M)
 
-def construct_Hfc(F, sigma, lmbd):
+def construct_Hfc(F, sigma, lmbd, mode="notsep"):
     # F: grayscale image patch around object location
     # lmbd: kako pomembno je, da je H majhen (napram temu, da se dobro nafitta)
     G = create_gauss_peak(target_size=(F.shape[1],F.shape[0]), sigma=sigma)
@@ -18,10 +18,13 @@ def construct_Hfc(F, sigma, lmbd):
     Fw = np.multiply(F,coswin)
     Ff = fur(Fw)
     Ffc = np.conjugate(Ff)
-    Hfc = np.divide(np.multiply(Gf,Ffc), (np.multiply(Ff,Ffc) + lmbd))
-    return Hfc
+    if mode=="sep":
+        return (np.multiply(Gf,Ffc), (np.multiply(Ff,Ffc) + lmbd))
+    else:
+        Hfc = np.divide(np.multiply(Gf,Ffc), (np.multiply(Ff,Ffc) + lmbd))
+        return Hfc
 
-def localization_step(Hfc,F):
+def localization_step(Hfc,F,mode="notsep"):
     # R correlation response
     coswin = create_cosine_window((F.shape[1],F.shape[0]))
     Fw = np.multiply(F,coswin)

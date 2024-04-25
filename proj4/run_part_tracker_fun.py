@@ -4,11 +4,9 @@ import cv2
 import numpy as np
 
 from sequence_utils import VOTSequence
-# from ncc_tracker_example import NCCTracker, NCCParams
-#from ms_tracker import MeanShiftTracker, MSParams
-from corr_tracker import CorrTracker, CorrParams
+from part_tracker import PartParams,PartTracker
 
-def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15,verbose=True):
+def run(sequence="bolt1",parameters=PartParams(),plot=True,video_delay=15,verbose=True):
     # set the path to directory where you have the sequences
     dataset_path = '/home/lema/Documents/RV/proj3/vot2013/' # TODO: set to the dataet path on your disk
     sequence = sequence  # choose the sequence you want to test
@@ -18,7 +16,6 @@ def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15,verbos
     reinitialize = True
     show_gt = False
     # video_delay = 15
-    font = cv2.FONT_HERSHEY_PLAIN
 
     # create sequence object
     sequence = VOTSequence(dataset_path, sequence)
@@ -29,16 +26,9 @@ def run(sequence="bolt1",parameters=CorrParams(),plot=True,video_delay=15,verbos
     track_times = []
     # create parameters and tracker objects
     
+    tracker = PartTracker(parameters)
     
-    # parameters = CorrParams()
-    
-    
-    # tracker = CorrTracker(parameters)
-    tracker = CorrTracker()
-    tracker.parameters = parameters
-    
-    #parameters = MSParams()
-    #tracker = MeanShiftTracker(parameters)
+
 
     time_all = 0
 

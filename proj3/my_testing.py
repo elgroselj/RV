@@ -105,18 +105,20 @@ def scatter3(x, y1, y2, z):
 # # plot2(alphas,Fs,Os, x_label="alpha")
 
 
-enfs = [1,1.1,1.5,2]
-# enfs = [1]
-Fs = []
-Os = []
-for enf in enfs:
-    params = CorrParams()
-    params.enlarge_factor = enf
-    F, O  = run_tests(verbose=True, params=params)
-    Fs.append(F)
-    Os.append(O)
+# enfs = [1,1.1,1.5,2]
+# # enfs = [1]
+# Fs = []
+# Os = []
+# for enf in enfs:
+#     params = CorrParams()
+#     params.enlarge_factor = enf
+#     F, O  = run_tests(verbose=True, params=params)
+#     Fs.append(F)
+#     Os.append(O)
     
-plot2(enfs,Fs,Os, x_label="enlarge_factor")
+# plot2(enfs,Fs,Os, x_label="enlarge_factor")
+
+run_tests()
 
 
         
