@@ -24,7 +24,9 @@ def run(sequence="bolt",parameters=PartParams(),plot=True,video_delay=15,verbose
     track_times = []
     # create parameters and tracker objects
     
+    parameters.verbose = verbose
     tracker = PartTracker(parameters)
+    
     
 
 
@@ -39,6 +41,7 @@ def run(sequence="bolt",parameters=PartParams(),plot=True,video_delay=15,verbose
         img = cv2.imread(sequence.frame(frame_idx))
         # initialize or track
         if frame_idx == init_frame:
+            # print("initialize")
             # initialize tracker (at the beginning of the sequence or after tracking failure)
             t_ = time.time()
             tracker.initialize(img, sequence.get_annotation(frame_idx, type='rectangle'))
@@ -81,6 +84,6 @@ def run(sequence="bolt",parameters=PartParams(),plot=True,video_delay=15,verbose
         print('Tracking speed: %.1f FPS' % (sequence.length() / time_all))
         print('Tracker failed %d times' % n_failures)
         print('Average overlap %d percent' % (overlap[0]/overlap[1]*100))
-    return((sequence.length() / time_all), n_failures, overlap[0]/overlap[1], init_times, track_times)
+    return((sequence.length() / time_all), n_failures, overlap[0]/overlap[1])
 
-run()
+# run()

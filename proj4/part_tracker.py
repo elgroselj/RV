@@ -49,7 +49,8 @@ class PartTracker(Tracker):
         # self.bag = [(self.position[0] + x, self.position[1] + y, 1) for x,y in noise]
         samples = sample_gauss(self.position, np.eye(2) * self.parameters.sigma, self.parameters.n)
         self.bag = [{"state":np.array([x,y,0,0]), "weight": 1} for x,y in samples]
-        PartTracker.visualize(self.bag, image)
+        if self.parameters.verbose:
+            PartTracker.visualize(self.bag, image)
 
     def track(self, image):
 
@@ -70,7 +71,8 @@ class PartTracker(Tracker):
         p = np.array(p)/sum(p)
         self.bag = choice(self.bag, self.parameters.n, p=p, replace=True)
         
-        PartTracker.visualize(self.bag, image)
+        if self.parameters.verbose:
+            PartTracker.visualize(self.bag, image)
         
         # dynamic model
         
@@ -89,8 +91,8 @@ class PartTracker(Tracker):
                 and pair["state"][1] >= top and pair["state"][1] <= bottom:
                     pair["weight"] = 0
             
-            
-        PartTracker.visualize(self.bag, image)
+        if self.parameters.verbose:
+            PartTracker.visualize(self.bag, image)
             
         def hell_dist(p,q):
             P = p.flatten()
@@ -103,6 +105,7 @@ class PartTracker(Tracker):
         for pair in self.bag:
             height, width = self.template.shape[:2]
             cut,_ = get_patch(image, pair["state"][:2], (height,width))
+            cut = cut[:width,:height]
             hist = extract_histogram(cut,
                                     nbins=self.parameters.nbins,
                                     weights=self.epanechnik_kernel[:height,:width],
@@ -118,16 +121,18 @@ class PartTracker(Tracker):
         # probs = np.array(probs) / sum(probs)
         # for pair, prob in zip(self.bag, probs):
         #     pair["weight"] = prob
-        
-        self.position = np.sum([ pair["state"][:2] * pair["weight"] for pair in self.bag ],axis=0)
-        print(self.position)
-        PartTracker.visualize1(self.position, image)
+        suma = sum([pair["weight"] for pair in self.bag])
+        self.position = np.sum([ pair["state"][:2] * pair["weight"] / suma for pair in self.bag ],axis=0)
+        # print(self.position)
+        if self.parameters.verbose:
+            PartTracker.visualize1(self.position, image)
         max_loc = (float(self.position[0]) - left - float(self.size[0]) / 2, float(self.position[1]) - top - float(self.size[1])/2)
         ############################################3
         # update q
         height, width = self.template.shape[:2]
         center = (int(self.position[0]),int(self.position[1]))
         cut,_ = get_patch(image, center, (height,width))
+        cut = cut[:width,:height]
         hist = extract_histogram(cut,
                                 nbins=self.parameters.nbins,
                                 weights=self.epanechnik_kernel[:height,:width],
@@ -137,25 +142,27 @@ class PartTracker(Tracker):
         
         #############################################33
 
-        assert (self.position [0] == left + max_loc[0] + float(self.size[0]) / 2 and
-                self.position[1] == top + max_loc[1] + float(self.size[1]) / 2)
+        # assert (self.position [0] == left + max_loc[0] + float(self.size[0]) / 2 and
+        #         self.position[1] == top + max_loc[1] + float(self.size[1]) / 2)
 
         return [left + max_loc[0], top + max_loc[1], self.size[0], self.size[1]]
 
 class PartParams():
     def __init__(self):
-        self.enlarge_factor = 2
+        # self.enlarge_factor = 2
+        self.enlarge_factor = 2.5
         
         self.nbins = 16
         self.hist_mode = "BGR"
-        self.alpha = 0.1
+        self.alpha = 0.1 # spreminjanje tergeta
         
-        self.q = 1
-        self.r = 1
+        self.q = 1 # dependent on target size # kolko naprej skočijo pikice v dinamičnem modelu
+        self.r = 1 # koliko je šuma v podatkih
         
-        self.n = 100
-        self.sigma = 1
-        self.sigma2 = 1
+        # self.n = 100 # število partiklov
+        self.n = 150 # število partiklov
+        self.sigma = 1 # koliko se razmečejo okoli ground truth (samo pri init)
+        self.sigma2 = 1 # kolko se kaznuje različnost od targeta (v obliki zmanjšanja uteži)
         
         self.A = np.array([[1,0,1,0],
                   [0,1,0,1],
@@ -165,6 +172,8 @@ class PartParams():
                                           [0,2,0,3],
                                           [3,0,6,0],
                                           [0,3,0,6]])
+        
+        self.verbose = False
         
         
         
