@@ -1,12 +1,10 @@
 import time
-
 import cv2
-import numpy as np
 
 from sequence_utils import VOTSequence
 from part_tracker import PartParams,PartTracker
 
-def run(sequence="bolt1",parameters=PartParams(),plot=True,video_delay=15,verbose=True):
+def run(sequence="bolt",parameters=PartParams(),plot=True,video_delay=15,verbose=True):
     # set the path to directory where you have the sequences
     dataset_path = '/home/lema/Documents/RV/proj3/vot2013/' # TODO: set to the dataet path on your disk
     sequence = sequence  # choose the sequence you want to test
@@ -84,3 +82,5 @@ def run(sequence="bolt1",parameters=PartParams(),plot=True,video_delay=15,verbos
         print('Tracker failed %d times' % n_failures)
         print('Average overlap %d percent' % (overlap[0]/overlap[1]*100))
     return((sequence.length() / time_all), n_failures, overlap[0]/overlap[1], init_times, track_times)
+
+run()
