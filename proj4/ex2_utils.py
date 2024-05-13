@@ -52,9 +52,19 @@ def create_epanechnik_kernel(width, height, sigma):
     kernel[kernel<0] = 0
     return kernel
 
-def extract_histogram(patch, nbins, weights=None):
+def extract_histogram(patch, nbins, weights=None, mode="BGR"):
     # Note: input patch must be a BGR image (3 channel numpy array)
     # convert each pixel intensity to the one of nbins bins
+    if mode == "HSV":
+        patch = cv2.cvtColor(patch, cv2.COLOR_BGR2HSV)
+    elif mode == "HS":
+        patch = cv2.cvtColor(patch, cv2.COLOR_BGR2HSV)
+        patch[:,:,2] = np.zeros(patch[:,:,2].shape)
+    elif mode == "YCbCr":
+        patch = cv2.cvtColor(patch, cv2.COLOR_BGR2YCR_CB)
+    elif mode == "Lab":
+        patch = cv2.cvtColor(patch, cv2.COLOR_BGR2LAB)
+    
     channel_bin_idxs = np.floor((patch.astype(np.float32) / float(255)) * float(nbins - 1))
     # calculate bin index of a 3D histogram
     bin_idxs = (channel_bin_idxs[:, :, 0] * nbins**2  + channel_bin_idxs[:, :, 1] * nbins + channel_bin_idxs[:, :, 2]).astype(np.int32)

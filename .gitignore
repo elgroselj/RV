@@ -16,4 +16,7 @@ proj3/vot2013
 workspace/results
 workspace/sequences
 proj4/__pycache__
+proj5/dataset
+proj5/material/siamfc/__pycache__
+proj5/material/tools/__pycache__
 
