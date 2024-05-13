@@ -1,0 +1,5 @@
+python3 run_tracker.py --dataset /home/lema/Documents/RV/proj5/dataset --net /home/lema/Documents/RV/proj5/material/siamfc_net.pth --results_dir /home/lema/Documents/RV/proj5/results
+
+python3 performance_evaluation.py --dataset /home/lema/Documents/RV/proj5/dataset --results_dir /home/lema/Documents/RV/proj5/results
+
+14:10 zacetek
