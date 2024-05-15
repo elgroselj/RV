@@ -2,4 +2,9 @@ python3 run_tracker.py --dataset /home/lema/Documents/RV/proj5/dataset --net /ho
 
 python3 performance_evaluation.py --dataset /home/lema/Documents/RV/proj5/dataset --results_dir /home/lema/Documents/RV/proj5/results
 
+
+
+python3 proj5/material/run_trackerLT.py --dataset /home/lema/Documents/RV/proj5/dataset --net /home/lema/Documents/RV/proj5/material/siamfc_net.pth --results_dir /home/lema/Documents/RV/proj5/resultsLT --treshold 20
+python3 proj5/material/performance_evaluation.py --dataset /home/lema/Documents/RV/proj5/dataset --results_dir /home/lema/Documents/RV/proj5/resultsLT
+
 14:10 zacetek

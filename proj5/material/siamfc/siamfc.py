@@ -86,7 +86,8 @@ class TrackerSiamFC(Tracker):
             'context': 0.5,
             # inference parameters
             'scale_num': 3,
-            'scale_step': 1.0375,
+            # 'scale_step': 1.0375,
+            'scale_step': 1.001,
             'scale_lr': 0.59,
             'scale_penalty': 0.9745,
             'window_influence': 0.176,
@@ -212,6 +213,81 @@ class TrackerSiamFC(Tracker):
             self.target_sz[1], self.target_sz[0]])
 
         return box, max_resp
+    
+    @torch.no_grad()
+    def redetect(self,img,candidate):
+        # set to evaluation mode
+        self.net.eval()
+        center = candidate
+        # search images
+        x = [ops.crop_and_resize(
+            img, center, self.x_sz * f,
+            out_size=self.cfg.instance_sz,
+            border_value=self.avg_color) for f in self.scale_factors]
+        x = np.stack(x, axis=0)
+        x = torch.from_numpy(x).to(
+            self.device).permute(0, 3, 1, 2).float()
+        
+        # responses
+        x = self.net.backbone(x)
+        responses = self.net.head(self.kernel, x)
+        responses = responses.squeeze(1).cpu().numpy()
+
+        # upsample responses and penalize scale changes
+        responses = np.stack([cv2.resize(
+            u, (self.upscale_sz, self.upscale_sz),
+            interpolation=cv2.INTER_CUBIC)
+            for u in responses])
+        responses[:self.cfg.scale_num // 2] *= self.cfg.scale_penalty
+        responses[self.cfg.scale_num // 2 + 1:] *= self.cfg.scale_penalty
+
+        # peak scale
+        scale_id = np.argmax(np.amax(responses, axis=(1, 2)))
+
+        # peak location
+        response = responses[scale_id]
+        max_resp = max(0, response.max())
+        response -= response.min()
+        response /= response.sum() + 1e-16
+        response = (1 - self.cfg.window_influence) * response + \
+            self.cfg.window_influence * self.hann_window
+        loc = np.unravel_index(response.argmax(), response.shape)
+
+        # locate target center
+        disp_in_response = np.array(loc) - (self.upscale_sz - 1) / 2
+        disp_in_instance = disp_in_response * \
+            self.cfg.total_stride / self.cfg.response_up
+        disp_in_image = disp_in_instance * self.x_sz * \
+            self.scale_factors[scale_id] / self.cfg.instance_sz
+        
+        center += disp_in_image
+
+        # update target size
+        scale =  (1 - self.cfg.scale_lr) * 1.0 + \
+            self.cfg.scale_lr * self.scale_factors[scale_id]
+        target_sz = self.target_sz
+        target_sz *= scale
+        
+        # z_sz = self.z_sz
+        # z_sz *= scale
+        
+        # x_sz = self.x_sz
+        # x_sz *= scale
+
+        # return 1-indexed and left-top based bounding box
+        box = np.array([
+            center[1] + 1 - (target_sz[1] - 1) / 2,
+            center[0] + 1 - (target_sz[0] - 1) / 2,
+            target_sz[1], target_sz[0]])
+
+        return box, max_resp, center, scale
+    
+    @torch.no_grad()
+    def apply_detection(self, img, center, scale):
+        self.center = center
+        self.target_sz *= scale
+        self.z_sz *= scale
+        self.x_sz *= scale
     
     def train_step(self, batch, backward=True):
         # set network mode
