@@ -3,15 +3,25 @@ import os
 import cv2
 from random import randint
 import numpy as np
+import time
 
 from tools.sequence_utils import VOTSequence
 from tools.sequence_utils import save_results
 from siamfc import TrackerSiamFC
 
-def redetection_score(score, candidate, last_detected_center, n_fails):
-    dist = np.linalg.norm(candidate - last_detected_center, 2)
-    return score*(1/dist)*n_fails
+
+def gaussian(x, mu, sigma):
+    return (
+        1.0 / (np.sqrt(2.0 * np.pi) * sigma) * np.exp(-np.power((x - mu) / sigma, 2.0) / 2)
+    )
     
+def redetection_score(score, candidate, last_detected_center, n_fails, locality):
+    # if n_fails >= locality:
+    #     return score
+    # dist = np.linalg.norm(candidate - last_detected_center, 2)
+    # # return score*gaussian(dist,0,sigma*(n_fails))
+    # return score*(1/dist)*np.log(n_fails+1) * 10
+    return score
     
 
 
@@ -44,6 +54,7 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
         scores = [[10000]]  # a very large number - very confident at initialization
         mode = "tracking"
         candidate_predictions = []
+        fails = 0
         if verbose:
             print("INFO: Into tracking mode.")
 
@@ -65,7 +76,7 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                     if verbose:
                         print("INFO: Into redetection mode.")
                     results.append(last_detected)
-                    scores.append([score])
+                    scores.append([0])
                 else:
                     results.append(prediction)
                     scores.append([score])
@@ -74,6 +85,7 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                         
             elif mode == "redetection":
                 n_fails += 1
+                fails += 1
                 best = None
                 height, width, _ = img.shape
                 # candidates = np.array(np.random.multivariate_normal(tracker.center, sigma * np.eye(2), N))
@@ -87,7 +99,7 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                 candidate_predictions = []
                 for candidate in candidates:
                     prediction, score0, center, scale = tracker.redetect(img,candidate)
-                    score = redetection_score(score0,candidate,tracker.center,n_fails)
+                    score = redetection_score(score0,candidate,tracker.center,n_fails,locality)
                     
                     candidate_predictions.append(prediction)
                     if best is None or best[1] < score:
@@ -104,7 +116,7 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                     scores.append([score])
                 else:
                     results.append(last_detected)
-                    scores.append([score])
+                    scores.append([0])
                     
                     
                     
@@ -115,6 +127,7 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                     cv2.rectangle(img, tl_, br_, (0, 0, 255), 1)
 
                     cv2.imshow('win', img)
+                    # cv2.imwrite("track"+str(np.sum(prediction))+".png", img) 
                     key_ = cv2.waitKey(10)
                     if key_ == 27:
                         exit(0)
@@ -133,29 +146,13 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                         cv2.rectangle(img, tl_, br_, (255, 0, 0), 1)
                     
                     cv2.imshow('win', img)
+                    # cv2.imwrite("redetect"+str(np.sum(prediction))+".png", img) 
                     key_ = cv2.waitKey(10)
                     if key_ == 27:
                         exit(0)
                     
                 
-        
+        print("fails:",fails)
         save_results(results, bboxes_path)
         save_results(scores, scores_path)
 
-
-parser = argparse.ArgumentParser(description='SiamFC Runner Script')
-
-parser.add_argument("--dataset", help="Path to the dataset", required=True, action='store')
-parser.add_argument("--net", help="Path to the pre-trained network", required=True, action='store')
-parser.add_argument("--results_dir", help="Path to the directory to store the results", required=True, action='store')
-parser.add_argument("--visualize", help="Show ground-truth annotations", required=False, action='store_true')
-parser.add_argument("--verbose", help="Verbose", required=False, action='store_true')
-parser.add_argument("--treshold_stop", help="Treshold for stop tracking", required=False, action='store')
-parser.add_argument("--treshold_start", help="Treshold for start tracking", required=False, action='store')
-parser.add_argument("--sigma", help="Dispersion of candidates.", required=False, action='store')
-parser.add_argument("--N", help="Number of candidates.", required=False, action='store')
-parser.add_argument("--locality", help="Number of tries in local area, before forgetting about it.", required=False, action='store')
-
-args = parser.parse_args()
-
-evaluate_tracker(args.dataset, args.net, args.results_dir, args.visualize, args.verbose, float(args.treshold_stop), float(args.treshold_start), float(args.sigma), int(args.N), int(args.locality))
