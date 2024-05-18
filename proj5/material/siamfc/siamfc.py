@@ -87,8 +87,8 @@ class TrackerSiamFC(Tracker):
             'context': 0.5,
             # inference parameters
             'scale_num': 3,
-            # 'scale_step': 1.0375,
-            'scale_step': 1.001,
+            'scale_step': 1.0375,
+            # 'scale_step': 1.001,
             'scale_lr': 0.59,
             'scale_penalty': 0.9745,
             'window_influence': 0.176,

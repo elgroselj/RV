@@ -53,8 +53,10 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
         results = [gt_rect]
         scores = [[10000]]  # a very large number - very confident at initialization
         mode = "tracking"
+        prevmode = "tracking"
         candidate_predictions = []
-        fails = 0
+        fails = []
+        n_fails = 0 
         if verbose:
             print("INFO: Into tracking mode.")
 
@@ -62,9 +64,10 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
             cv2.namedWindow('win', cv2.WINDOW_AUTOSIZE)
         for i in range(1, sequence.length()):
             img = cv2.imread(sequence.frame(i))
-            last_detected = results[-1]
+            # last_detected = results[-1]
             
             if mode == "tracking":
+                prevmode = "tracking"
                 candidate_predictions = []
                 prediction, score = tracker.update(img)
                 if verbose:
@@ -72,11 +75,12 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                 
                 if score < treshold_stop:
                     mode = "redetection"
+                    fails.append(n_fails)
                     n_fails = 0
                     if verbose:
                         print("INFO: Into redetection mode.")
-                    results.append(last_detected)
-                    scores.append([0])
+                    results.append(prediction)
+                    scores.append([-1])
                 else:
                     results.append(prediction)
                     scores.append([score])
@@ -84,8 +88,8 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                         
                         
             elif mode == "redetection":
+                prevmode = "redetection"
                 n_fails += 1
-                fails += 1
                 best = None
                 height, width, _ = img.shape
                 # candidates = np.array(np.random.multivariate_normal(tracker.center, sigma * np.eye(2), N))
@@ -115,24 +119,15 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                     results.append(prediction)
                     scores.append([score])
                 else:
-                    results.append(last_detected)
-                    scores.append([0])
+                    results.append(prediction)
+                    scores.append([-1])
                     
                     
                     
             if visualize or verbose:
-                if mode == "tracking":
-                    tl_ = (int(round(prediction[0])), int(round(prediction[1])))
-                    br_ = (int(round(prediction[0] + prediction[2])), int(round(prediction[1] + prediction[3])))
-                    cv2.rectangle(img, tl_, br_, (0, 0, 255), 1)
-
-                    cv2.imshow('win', img)
-                    # cv2.imwrite("track"+str(np.sum(prediction))+".png", img) 
-                    key_ = cv2.waitKey(10)
-                    if key_ == 27:
-                        exit(0)
-                        
-                elif mode == "redetection":
+                
+                    
+                if mode == "redetection" or prevmode == "redetection":
                     # font = cv2.FONT_HERSHEY_SIMPLEX
                     # org = (50, 50)
                     # fontScale = 1
@@ -140,19 +135,29 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                     # thickness = 2
                     # img = cv2.putText(img, 'NA', org, font,  
                     #                 fontScale, color, thickness, cv2.LINE_AA) 
-                    for prediction in candidate_predictions:
-                        tl_ = (int(round(prediction[0])), int(round(prediction[1])))
-                        br_ = (int(round(prediction[0] + prediction[2])), int(round(prediction[1] + prediction[3])))
+                    for candidate_prediction in candidate_predictions:
+                        tl_ = (int(round(candidate_prediction[0])), int(round(candidate_prediction[1])))
+                        br_ = (int(round(candidate_prediction[0] + candidate_prediction[2])), int(round(candidate_prediction[1] + candidate_prediction[3])))
                         cv2.rectangle(img, tl_, br_, (255, 0, 0), 1)
+                        
+                if mode == "redetection":
+                    tl_ = (int(round(prediction[0])), int(round(prediction[1])))
+                    br_ = (int(round(prediction[0] + prediction[2])), int(round(prediction[1] + prediction[3])))
+                    cv2.rectangle(img, tl_, br_, (0, 255, 0), 1)
                     
-                    cv2.imshow('win', img)
-                    # cv2.imwrite("redetect"+str(np.sum(prediction))+".png", img) 
-                    key_ = cv2.waitKey(10)
-                    if key_ == 27:
-                        exit(0)
+                if mode == "tracking":
+                    tl_ = (int(round(prediction[0])), int(round(prediction[1])))
+                    br_ = (int(round(prediction[0] + prediction[2])), int(round(prediction[1] + prediction[3])))
+                    cv2.rectangle(img, tl_, br_, (0, 0, 255), 1)
+                        
+                cv2.imshow('win', img)
+                # cv2.imwrite("redetect"+str(np.sum(prediction))+".png", img) 
+                key_ = cv2.waitKey(10)
+                if key_ == 27:
+                    exit(0)
                     
-                
-        print("fails:",fails)
+        print(fails)
+        print(f"fails: min: {min(fails)}, max: {max(fails)}, mean: {np.mean(fails)}, sum: {sum(fails)}")
         save_results(results, bboxes_path)
         save_results(scores, scores_path)
 
