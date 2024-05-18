@@ -50,10 +50,36 @@ import matplotlib.pyplot as plt
 
 # plt.show()
 
-x = [326, 261, 225]
-plt.plot([10,30,50],x,marker='o')
-plt.xlabel("N")
-plt.ylabel("number of fails")
+# x = [326, 261, 225]
+# plt.plot([10,30,50],x,marker='o')
+# plt.xlabel("N")
+# plt.ylabel("number of fails")
+# plt.ylim(0)
+# plt.savefig("nfails.png")
+# plt.show()
+
+
+
+N = [10,10,30,30,50,50]
+maks = [2,10,1,1,1,1]
+# sumi = [31,408,10,16,17,10]
+plt.scatter(N,maks,label="max_centraliziran")
+
+
+
+
+maks = [3,2,1,1,1,1]
+plt.scatter(N,maks,label="max_enakomerno_naključen",marker="x")
+plt.legend()
+plt.ylabel("Maksimalno št. zaporednih neuspehov")
+plt.xlabel("Število kandidatov")
+plt.xticks(N)
 plt.ylim(0)
-plt.savefig("nfails.png")
+
+plt.savefig("Strike.png")
 plt.show()
+
+
+
+
+# sumi = [12,32,7,18,15,18]

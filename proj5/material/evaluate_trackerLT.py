@@ -151,7 +151,7 @@ def evaluate_tracker(dataset_path, network_path, results_dir, visualize, verbose
                     cv2.rectangle(img, tl_, br_, (0, 0, 255), 1)
                         
                 cv2.imshow('win', img)
-                # cv2.imwrite("redetect"+str(np.sum(prediction))+".png", img) 
+                # cv2.imwrite("screen"+str(np.sum(prediction))+str(randint(1,1000))+".png", img)
                 key_ = cv2.waitKey(10)
                 if key_ == 27:
                     exit(0)
